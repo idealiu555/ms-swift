@@ -5,7 +5,7 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 EXAMPLE_DIR=$(dirname "$SCRIPT_DIR")
 
 # Qwen3.5-0.8B has 24 text decoder blocks. Freeze the complete model, then
-# activate only the final two blocks and the scalar regression/action head.
+# activate only the final two blocks and the regression/action MLP head.
 CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0} \
 swift sft \
     --model Qwen/Qwen3.5-0.8B \

@@ -20,7 +20,7 @@ bash examples/train/seq_cls/qwen3_5_action_head/train/train.sh
 ```
 
 With `task_type=seq_cls`, `num_labels=1`, and `problem_type=regression`, ms-swift
-replaces `lm_head` with `Identity`, creates `score = Linear(hidden_size, 1)`,
+replaces `lm_head` with `Identity`, creates a four-layer SiLU MLP as `score`,
 pools the final non-padding hidden state, and optimizes mean squared error. The
 training script freezes every parameter before re-enabling decoder blocks 22 and
 23 and `score`.

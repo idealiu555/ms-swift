@@ -181,10 +181,11 @@ def transformers_seq_cls_forward(self, *args, origin_forward, padding_side=None,
     inputs_embeds = kwargs.get('inputs_embeds')
 
     output = origin_forward(*args, **kwargs)
+    score_dtype = next(self.score.parameters()).dtype
     if hasattr(output, 'logits'):
-        output.logits = output.logits.to(self.score.weight.dtype)
+        output.logits = output.logits.to(score_dtype)
     elif 'last_hidden_state' in output:
-        output.logits = output['last_hidden_state'].to(self.score.weight.dtype)
+        output.logits = output['last_hidden_state'].to(score_dtype)
     logits = self.score(output.logits)
     if input_ids is not None:
         batch_size = input_ids.shape[0]
@@ -261,10 +262,21 @@ def _patch_sequence_classification(model, model_meta):
             hidden_size = getattr(lm_head_model, lm_head).in_features
             setattr(lm_head_model, lm_head, nn.Identity())
             break
-    lm_head_model.score = nn.Linear(hidden_size, lm_head_model.num_labels, bias=False, dtype=lm_head_model.dtype)
-    if lm_head_model.score.weight.device == torch.device('meta'):
-        lm_head_model.score.to_empty(device='cpu')
-    lm_head_model.score.weight.data.normal_(mean=0.0, std=initializer_range)
+    score = nn.Sequential(
+        nn.Linear(hidden_size, hidden_size, dtype=lm_head_model.dtype),
+        nn.SiLU(),
+        nn.Linear(hidden_size, hidden_size, dtype=lm_head_model.dtype),
+        nn.SiLU(),
+        nn.Linear(hidden_size, hidden_size, dtype=lm_head_model.dtype),
+        nn.SiLU(),
+        nn.Linear(hidden_size, lm_head_model.num_labels, dtype=lm_head_model.dtype),
+    )
+    if next(score.parameters()).device == torch.device('meta'):
+        score.to_empty(device='cpu')
+    for layer in score[::2]:
+        layer.weight.data.normal_(mean=0.0, std=initializer_range)
+        layer.bias.data.zero_()
+    lm_head_model.score = score
 
     origin_forward = lm_head_model.forward
 
