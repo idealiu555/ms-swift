@@ -1,5 +1,5 @@
-# Supported multimodal models reference:
-# https://github.com/modelscope/ms-swift/blob/main/examples/train/packing/qwen2_5_vl.sh
+# Supported multimodal models reference: see the model documentation and the
+# packing examples in this directory.
 # without padding_free: 4 * 60GiB, 26h
 # padding_free: 4 * 44GiB, 13h
 NPROC_PER_NODE=4 \

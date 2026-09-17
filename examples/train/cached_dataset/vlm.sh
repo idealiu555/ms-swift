@@ -11,7 +11,7 @@ swift export \
     --split_dataset_ratio 0.01 \
     --dataset_num_proc 16 \
     --to_cached_dataset true \
-    --output_dir ./qwen2_5_omni_cached_dataset
+    --output_dir ./vlm_cached_dataset
 
 # 4 * 70GiB
 PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
@@ -24,8 +24,8 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 \
 swift sft \
     --model Qwen/Qwen2.5-Omni-7B \
     --tuner_type full \
-    --cached_dataset './qwen2_5_omni_cached_dataset/train' \
-    --cached_val_dataset './qwen2_5_omni_cached_dataset/val' \
+    --cached_dataset './vlm_cached_dataset/train' \
+    --cached_val_dataset './vlm_cached_dataset/val' \
     --num_train_epochs 1 \
     --torch_dtype bfloat16 \
     --per_device_train_batch_size 1 \
