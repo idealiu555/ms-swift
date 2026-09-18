@@ -1,8 +1,7 @@
-from types import SimpleNamespace
-
 import torch
 import torch.nn as nn
 from transformers import GPT2Config, GPT2LMHeadModel
+from types import SimpleNamespace
 
 from swift.model.patcher import _patch_sequence_classification
 
